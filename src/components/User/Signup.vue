@@ -1,16 +1,98 @@
 <template>
-  <div class="hello">
-    The Signup Page
-    <p>{{ msg }}</p>
-  </div>
+  <v-container>
+    <v-layout row wrap>
+      <v-flex sm12 md6 offset-sm2>
+        <v-card>
+          <v-card-text>
+            <v-container>
+
+              <form @submit.prevent="onSignUp">
+                <v-layout row>
+                  <v-flex xs12>
+                    <v-text-field
+                      name="email"
+                      label="E-Mail"
+                      id="email"
+                      v-model="email"
+                      type="email"
+                      required></v-text-field>
+                  </v-flex>
+                </v-layout>
+
+                <v-layout row>
+                  <v-flex xs12>
+                    <v-text-field
+                      name="password"
+                      label="Password"
+                      id="password"
+                      v-model="password"
+                      type="password"
+                      required></v-text-field>
+                  </v-flex>
+                </v-layout>
+
+                <v-layout row>
+                  <v-flex xs12>
+                    <v-text-field
+                      name="confirmPassword"
+                      label="Confirm Password"
+                      id="confirmPassword"
+                      v-model="confirmPassword"
+                      type="password"
+                      :rules="[comparePasswords]"
+                      ></v-text-field>
+                  </v-flex>
+                </v-layout>
+
+                <v-layout row>
+                  <v-flex xs12>
+                    <v-btn type="submit" :disabled="!formIsValid" class="primary">Sign Up</v-btn>
+                  </v-flex>
+                </v-layout>
+              </form>
+
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+  </v-container>
 </template>
+
+
 
 <script>
 export default {
-  name: 'hello',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      email: '',
+      password: '',
+      confirmPassword: ''
+    }
+  },
+  computed: {
+    formIsValid () {
+      return this.email !== '' &&
+        this.password !== '' &&
+        this.confirmPassword !== ''
+    },
+    comparePasswords () {
+      return this.password !== this.confirmPassword ? 'Passwords do not match' : ''
+    }
+  },
+  methods: {
+    onSignUp () {
+      if (!this.formIsValid) {
+        return
+      }
+      const signupData = {
+        email: this.email,
+        password: this.password,
+        confirmPassword: this.confirmPassword
+      }
+      console.log(signupData)
+      // this.$store.dispatch('createUser', signupData)
+      this.$router.push('meetups')
     }
   }
 }

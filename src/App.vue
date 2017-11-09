@@ -6,7 +6,6 @@
         <v-list-tile 
           v-for="item in menuItems" 
           key="item.title" 
-          router
           :to="{name: item.link}">
           <v-list-tile-action>
             <v-icon>{{ item.icon }}</v-icon>
@@ -37,7 +36,9 @@
 
 
     <main>
-      <router-view></router-view>
+      <v-content>        
+        <router-view></router-view>
+      </v-content>
     </main>
 
   </v-app>
