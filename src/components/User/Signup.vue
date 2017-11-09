@@ -78,6 +78,16 @@ export default {
     },
     comparePasswords () {
       return this.password !== this.confirmPassword ? 'Passwords do not match' : ''
+    },
+    user () {
+      return this.$store.getters.user
+    }
+  },
+  watch: {
+    user (value) {
+      if (value !== null && value !== undefined) {
+        this.$router.push('/')
+      }
     }
   },
   methods: {
@@ -87,12 +97,10 @@ export default {
       }
       const signupData = {
         email: this.email,
-        password: this.password,
-        confirmPassword: this.confirmPassword
+        password: this.password
       }
       console.log(signupData)
-      // this.$store.dispatch('createUser', signupData)
-      this.$router.push('meetups')
+      this.$store.dispatch('signUserUp', signupData)
     }
   }
 }
