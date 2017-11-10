@@ -1,5 +1,14 @@
 <template>
   <v-container>
+
+    <!-- Alert Panel -->
+    <v-layout row v-if="error">
+      <v-flex sm12 md6 offset-sm2>
+        <app-alert @dismissed="onDismissed" :text="error.message"></app-alert>
+      </v-flex>
+    </v-layout>
+
+    <!-- Sign In Form -->
     <v-layout row wrap>
       <v-flex sm12 md6 offset-sm2>
         <v-card>
@@ -33,7 +42,17 @@
 
                 <v-layout row>
                   <v-flex xs12>
-                    <v-btn type="submit" :disabled="!formIsValid" class="primary">Sign In</v-btn>
+                    <v-btn 
+                      type="submit" 
+                      class="primary"
+                      :disabled="!formIsValid" 
+                      :loading="loading"
+                      @click="loader = 'loading'"
+                      >Sign In
+                      <span slot="loader" class="custom-loader">
+                        <v-icon light>cached</v-icon>
+                      </span>
+                    </v-btn>
                   </v-flex>
                 </v-layout>
               </form>
@@ -49,13 +68,16 @@
 
 
 <script>
+
 export default {
+
   data () {
     return {
       email: '',
       password: ''
     }
   },
+
   computed: {
     formIsValid () {
       return this.email !== '' &&
@@ -63,8 +85,15 @@ export default {
     },
     user () {
       return this.$store.getters.user
+    },
+    error () {
+      return this.$store.getters.error
+    },
+    loading () {
+      return this.$store.getters.loading
     }
   },
+
   watch: {
     user (value) {
       if (value !== null && value !== undefined) {
@@ -72,6 +101,7 @@ export default {
       }
     }
   },
+
   methods: {
     onSignIn () {
       if (!this.formIsValid) {
@@ -81,10 +111,13 @@ export default {
         email: this.email,
         password: this.password
       }
-      console.log(signInData)
       this.$store.dispatch('signUserIn', signInData)
+    },
+    onDismissed () {
+      this.$store.dispatch('clearError')
     }
   }
 }
+
 </script>
 

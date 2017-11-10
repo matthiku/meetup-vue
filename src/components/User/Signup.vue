@@ -1,5 +1,14 @@
 <template>
   <v-container>
+
+    <!-- Alert Panel -->
+    <v-layout row v-if="error">
+      <v-flex sm12 md6 offset-sm2>
+        <app-alert @dismissed="onDismissed" :text="error.message"></app-alert>
+      </v-flex>
+    </v-layout>
+
+    <!-- Sign Up Form -->
     <v-layout row wrap>
       <v-flex sm12 md6 offset-sm2>
         <v-card>
@@ -7,6 +16,7 @@
             <v-container>
 
               <form @submit.prevent="onSignUp">
+
                 <v-layout row>
                   <v-flex xs12>
                     <v-text-field
@@ -44,11 +54,23 @@
                   </v-flex>
                 </v-layout>
 
+                <!-- Submit Button -->
                 <v-layout row>
                   <v-flex xs12>
-                    <v-btn type="submit" :disabled="!formIsValid" class="primary">Sign Up</v-btn>
+                    <v-btn 
+                      type="submit" 
+                      class="primary"
+                      :disabled="!formIsValid" 
+                      :loading="loading"
+                      @click="loader = 'loading'"
+                      >Sign Up
+                      <span slot="loader" class="custom-loader">
+                        <v-icon light>cached</v-icon>
+                      </span>
+                    </v-btn>
                   </v-flex>
                 </v-layout>
+
               </form>
 
             </v-container>
@@ -62,7 +84,9 @@
 
 
 <script>
+
 export default {
+
   data () {
     return {
       email: '',
@@ -70,27 +94,41 @@ export default {
       confirmPassword: ''
     }
   },
+
   computed: {
+
     formIsValid () {
       return this.email !== '' &&
         this.password !== '' &&
         this.confirmPassword !== ''
     },
+
     comparePasswords () {
       return this.password !== this.confirmPassword ? 'Passwords do not match' : ''
     },
+
     user () {
       return this.$store.getters.user
+    },
+    error () {
+      return this.$store.getters.error
+    },
+    loading () {
+      return this.$store.getters.loading
     }
   },
+
   watch: {
+
     user (value) {
       if (value !== null && value !== undefined) {
         this.$router.push('/')
       }
     }
   },
+
   methods: {
+
     onSignUp () {
       if (!this.formIsValid) {
         return
@@ -99,10 +137,14 @@ export default {
         email: this.email,
         password: this.password
       }
-      console.log(signupData)
       this.$store.dispatch('signUserUp', signupData)
+    },
+
+    onDismissed () {
+      this.$store.dispatch('clearError')
     }
   }
 }
+
 </script>
 
