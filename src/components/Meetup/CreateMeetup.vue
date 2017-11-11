@@ -11,7 +11,7 @@
     <v-layout row>
       <v-flex sm12 md10 offset-md1>
 
-        <form @submit.prevent="onCreateMeetup">
+        <form @submit.prevent="onCreateMeetup" @keyup.prevent.enter="onCreateMeetup">
 
           <!-- TITLE input field -->
           <v-layout row>

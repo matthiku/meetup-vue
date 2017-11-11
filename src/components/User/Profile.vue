@@ -13,8 +13,9 @@
       <v-flex sm12 md6 offset-sm2>
         <v-card>
           <v-card-text>
+
             <v-container>
-                <p v-if="!loading && user">Your id: {{ user.id }}</p>
+                <span v-if="!loading && user"><strong>Your id:</strong> {{ user.id }}</span>
 
                 <v-layout row>
                   <v-flex xs12>

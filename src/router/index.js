@@ -49,7 +49,8 @@ export default new Router({
       path: '/meetups/:id',
       name: 'meetup',
       component: Meetup,
-      props: true
+      props: true,
+      beforeEnter: AuthGuard
     }
   ],
   mode: 'history'

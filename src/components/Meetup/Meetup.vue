@@ -3,6 +3,7 @@
     <v-layout row wrap>
 
       <v-flex xs12 class="text-xs-center">
+        <!-- show loader icon while loading -->
         <v-progress-circular 
           v-if="isLoading" 
           indeterminate 
@@ -18,12 +19,6 @@
 
           <v-card-title>
             <h6 class="primary--text">{{ meetup.title }}</h6>
-            <template v-if="userIsCreator">
-              <v-spacer></v-spacer>
-              <app-edit-meetup-details-dialog 
-                :meetup="meetup"
-              ></app-edit-meetup-details-dialog>
-            </template>
           </v-card-title>
 
           <v-card-media
@@ -31,13 +26,23 @@
             height="400px">
           </v-card-media>
           <v-card-text>
-            <div class="info--text">{{ meetup.date | date }} in {{ meetup.location }} </div>
+            <span v-if="!userIsCreator">{{ meetup.date | date }} in {{ meetup.location }} </span>
+            <template v-else>
+              <!-- show EDIT icons -->
+              <app-edit-meetup-dialog 
+                :meetup="meetup"
+              ></app-edit-meetup-dialog>
+            </template>
+            <v-spacer></v-spacer>
             {{ meetup.description }}
           </v-card-text>
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn class="primary">Register</v-btn>
+            <app-meetup-register-dialog 
+              v-if="!userIsCreator && userIsAuthenticated" 
+              :meetup="meetup"
+            ></app-meetup-register-dialog>
           </v-card-actions>
 
         </v-card>
@@ -50,16 +55,21 @@
 <script>
 export default {
   props: ['id'],
+
   computed: {
+
     isLoading () {
       return this.$store.getters.loading
     },
+
     meetup () {
       return this.$store.getters.loadedMeetup(this.id)
     },
+
     userIsAuthenticated () {
       return this.$store.getters.user !== null && this.$store.getters.user !== undefined
     },
+
     userIsCreator () {
       if (!this.userIsAuthenticated) {
         return false

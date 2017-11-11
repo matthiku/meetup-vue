@@ -17,15 +17,19 @@ import { store } from './store'
 
 // Auxillary objects
 import DateFilter from './filters/date'
+import TimeFilter from './filters/time'
 import AlertCmp from './components/shared/Alert.vue'
-import EditMeetupDetailsDialog from './components/Meetup/Edit/EditMeetupDetailsDialog.vue'
+import EditMeetupDialog from './components/Meetup/Edit/EditMeetupDialog.vue'
+import RegisterDialog from './components/Meetup/Registration/RegisterDialog.vue'
 
 Vue.use(Vuetify)
 Vue.config.productionTip = false
 
 Vue.filter('date', DateFilter)
+Vue.filter('time', TimeFilter)
 Vue.component('app-alert', AlertCmp)
-Vue.component('app-edit-meetup-details-dialog', EditMeetupDetailsDialog)
+Vue.component('app-edit-meetup-dialog', EditMeetupDialog)
+Vue.component('app-meetup-register-dialog', RegisterDialog)
 
 /*
     eslint-disable no-new
@@ -55,6 +59,7 @@ new Vue({
     firebase.auth().onAuthStateChanged(function (user) {
       if (user) {
         store.dispatch('setUser', user)
+        store.dispatch('fetchUserData')
       } else {
         console.log('No user is signed in.')
       }

@@ -15,7 +15,7 @@
           <v-card-text>
             <v-container>
 
-              <form @submit.prevent="onSignUp">
+              <form @submit.prevent="onSignUp" @keyup.prevent.enter="onSignIn">
 
                 <v-layout row>
                   <v-flex xs12>
