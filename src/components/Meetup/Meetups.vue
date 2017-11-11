@@ -9,8 +9,10 @@
               
               <v-flex xs5 sm4 md3>
                 <v-card-media
-                  :src="meetup.imageUrl"
                   height="125px"
+                  style="cursor: pointer"
+                  :src="meetup.imageUrl"
+                  @click="showSingleMeetup(meetup.id)"
                 ></v-card-media>
               </v-flex>
 
@@ -18,12 +20,14 @@
                 <v-card-title primary-title>
                   <div>                  
                     <h5 class="white--text mb-0">{{ meetup.title }}</h5>
-                    <div>{{ meetup.date | date }}</div>
+                    <div>{{ meetup.date | date }} in {{ meetup.location }}</div>
                   </div>
                 </v-card-title>
 
                 <v-card-actions>
-                  <v-btn flat :to="{name: 'meetup', params: { id: meetup.id }}">
+                  <v-btn 
+                    @click="showSingleMeetup(meetup.id)"
+                    flat>
                     <v-icon left>arrow_forward</v-icon>
                     View Meetup
                   </v-btn>
@@ -44,6 +48,11 @@ export default {
   computed: {
     meetups () {
       return this.$store.getters.loadedMeetups
+    }
+  },
+  methods: {
+    showSingleMeetup (id) {
+      this.$router.push({name: 'meetup', params: { id: id }})
     }
   }
 }

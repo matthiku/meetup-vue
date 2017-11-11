@@ -16,8 +16,8 @@
 
     <v-layout row wrap>
 
-      <v-flex xs12>
-        <v-carousel>
+      <v-flex xs12 class="text-xs-center">
+        <v-carousel v-if="!isLoading">
           <v-carousel-item 
             v-for="meetup in meetups" 
             :src="meetup.imageUrl" 
@@ -27,6 +27,13 @@
               <div class="title">{{ meetup.title }}</div>
             </v-carousel-item>
         </v-carousel>
+        <v-progress-circular 
+          v-if="isLoading" 
+          indeterminate 
+          :width="7"
+          :size="70"
+          color="primary"
+          ></v-progress-circular>
       </v-flex>
 
     </v-layout>
@@ -52,6 +59,9 @@ export default {
   computed: {
     meetups () {
       return this.$store.getters.featuredMeetups
+    },
+    isLoading () {
+      return this.$store.getters.loading
     }
   }
 }

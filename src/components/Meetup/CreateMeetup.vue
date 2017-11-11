@@ -12,6 +12,8 @@
       <v-flex sm12 md10 offset-md1>
 
         <form @submit.prevent="onCreateMeetup">
+
+          <!-- TITLE input field -->
           <v-layout row>
             <v-flex xs12>
               <v-text-field
@@ -24,36 +26,37 @@
             </v-flex>
           </v-layout>
 
+          <!-- LOCATION input field -->
           <v-layout row>
             <v-flex xs12>
               <v-text-field
                 name="location"
-                id="location"
                 v-model="location"
+                id="location"
                 required
                 label="Location">
               </v-text-field>
             </v-flex>
           </v-layout>
 
+          <!-- IMAGE upload -->
           <v-layout row>
             <v-flex xs12>
-              <v-text-field
-                name="imageUrl"
-                v-model="imageUrl"
-                id="image-url"
-                required
-                label="Image URL">
-              </v-text-field>
+              <v-btn raised class="primary" @click="onPickFile">Upload Image</v-btn>
+              <input 
+                type="file" 
+                style="display: none" 
+                ref="fileInput" 
+                accept="image/*"
+                @change="onFilePicked">
+            </v-flex>
+            <!-- IMAGE preview -->
+            <v-flex xs12>
+              <img :src="imageUrl" height="150px" alt="<image preview>">
             </v-flex>
           </v-layout>
 
-          <v-layout row>
-            <v-flex xs12>
-              <img :src="imageUrl" height="150px" alt="preview image">
-            </v-flex>
-          </v-layout>
-
+          <!-- DESCRIPTION input field -->
           <v-layout row>
             <v-flex xs12>
               <v-text-field
@@ -109,7 +112,8 @@ export default {
       date: null,
       time: null,
       description: '',
-      imageUrl: ''
+      imageUrl: '',
+      image: null
     }
   },
 
@@ -120,7 +124,8 @@ export default {
         this.location !== '' &&
         this.date !== null &&
         this.time !== null &&
-        this.imageUrl !== ''
+        this.imageUrl !== '' &&
+        this.image !== null
     },
 
     dateTime () {
@@ -136,6 +141,28 @@ export default {
   },
 
   methods: {
+
+    onPickFile () {
+      this.$refs.fileInput.click()
+    },
+    onFilePicked (event) {
+      // get list of files selected with the upload button
+      // see https://www.youtube.com/watch?v=J2Wp4_XRsWc&list=PL55RiY5tL51qxUbODJG9cgrsVd7ZHbPrt&index=19
+      const files = event.target.files
+      // use only the first file
+      let filename = files[0].name
+      if (filename.lastIndexOf('.') <= 0) {
+        return alert('Please add a valid image file!')
+      }
+      // read the file into a Javascript object
+      const fileReader = new FileReader()
+      fileReader.addEventListener('load', () => {
+        this.imageUrl = fileReader.result
+      })
+      fileReader.readAsDataURL(files[0])
+      this.image = files[0]
+    },
+
     onCreateMeetup () {
       if (!this.formIsValid) {
         return
@@ -144,10 +171,11 @@ export default {
         title: this.title,
         location: this.location,
         description: this.description,
-        imageUrl: this.imageUrl,
+        image: this.image,
         date: moment(this.date + ' ' + this.time, 'YYYY-MM-DD hh:mmA')
       }
       this.$store.dispatch('createMeetup', meetupData)
+      this.$router.push({name: 'meetups'})
     }
   }
 }

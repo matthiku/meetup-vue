@@ -18,12 +18,14 @@ import { store } from './store'
 // Auxillary objects
 import DateFilter from './filters/date'
 import AlertCmp from './components/shared/Alert.vue'
+import EditMeetupDetailsDialog from './components/Meetup/Edit/EditMeetupDetailsDialog.vue'
 
 Vue.use(Vuetify)
 Vue.config.productionTip = false
 
 Vue.filter('date', DateFilter)
 Vue.component('app-alert', AlertCmp)
+Vue.component('app-edit-meetup-details-dialog', EditMeetupDetailsDialog)
 
 /*
     eslint-disable no-new
@@ -39,28 +41,26 @@ new Vue({
 
   components: { App },
 
+  // run initialization
   created () {
     firebase.initializeApp({
       apiKey: 'AIzaSyBjajVOEmLbM4aHHuSQn8-J93S_PJtz2Vs',
       authDomain: 'vuejs-http-c91a5.firebaseapp.com',
       databaseURL: 'https://vuejs-http-c91a5.firebaseio.com',
       projectId: 'vuejs-http-c91a5',
-      storageBucket: 'vuejs-http-c91a5.appspot.com'
+      storageBucket: 'gs://vuejs-http-c91a5.appspot.com/'
     })
+
     // check if a user is already logged on in the session
     firebase.auth().onAuthStateChanged(function (user) {
       if (user) {
-        // User is signed in.
-        const userData = {
-          id: user.uid,
-          registeredMeetups: []
-        }
-        store.dispatch('setUser', userData)
+        store.dispatch('setUser', user)
       } else {
         console.log('No user is signed in.')
       }
     })
+
     // load existing meetups from firebase
-    // store.dispatch('loadMeetups')
+    store.dispatch('loadMeetups')
   }
 })

@@ -6,30 +6,7 @@ Vue.use(Vuex)
 
 export const store = new Vuex.Store({
   state: {
-
-    loadedMeetups: [
-      {
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/47/New_york_times_square-terabass.jpg',
-        id: 'asdf234df',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda saepe tempora illo amet tenetur eveniet dolores corporis, alias odio, sunt vitae voluptas officia quisquam iusto perspiciatis eos hic expedita dolor.',
-        title: 'Meetup in New York',
-        date: new Date()
-      },
-      {
-        imageUrl: 'http://www.calaimmigration.ca/wp-content/uploads/2014/01/Vancouver_City_2_by_ajithrajeswari.jpg',
-        id: 'asdfwertwert',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nulla cupiditate soluta omnis aperiam quae possimus, quisquam illum fuga, odit illo est, eligendi consequuntur! Quia, dicta perspiciatis iusto eligendi, inventore necessitatibus!',
-        title: 'Meetup in Vancouver',
-        date: new Date()
-      },
-      {
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/22/Karlsruhe_town_centre_air.jpg',
-        id: 'karlsruhe',
-        description: 'Karlsruhe is the second-largest city in the state of Baden-Württemberg, in southwest Germany, near the French-German border. It has a population of 307,755. The city is the seat of the two highest courts in Germany: the Federal Constitutional Court and the Federal Court of Justice. Its most remarkable building is Karlsruhe Palace, which was built in 1715.',
-        title: 'Meetup in KA',
-        date: new Date()
-      }
-    ],
+    loadedMeetups: [],
     user: null,
     loading: false,
     error: null
@@ -60,10 +37,18 @@ export const store = new Vuex.Store({
     clearError ({commit}) {
       commit('clearError')
     },
-    setUser ({commit}, payload) {
-      commit('setUser', payload)
+    setLoading ({commit}, payload) {
+      commit('setLoading', payload)
     },
-    loadMeetups ({commit}, payload) {
+    setUser ({commit}, payload) {
+      const userData = {
+        id: payload.uid,
+        registeredMeetups: []
+      }
+      commit('setUser', userData)
+    },
+    loadMeetups ({commit}) {
+      commit('setLoading', true)
       firebase.database().ref('meetups').once('value')
         .then((data) => {
           const meetups = []
@@ -72,33 +57,85 @@ export const store = new Vuex.Store({
             meetups.push({
               id: key,
               title: obj[key].title,
+              location: obj[key].location,
               description: obj[key].description,
               imageUrl: obj[key].imageUrl,
-              date: obj[key].date
+              date: obj[key].date,
+              creatorId: obj[key].creatorId
             })
           }
           commit('setLoadedMeetups', meetups)
+          commit('setLoading', false)
+        })
+        .catch((error) => {
+          console.log(error)
+          commit('setLoading', false)
+        })
+    },
+    updateMeetup ({commit}, payload) {
+      const meetup = {
+        title: payload.title,
+        location: payload.location,
+        description: payload.description
+      }
+      firebase.database().ref('meetups').child(payload.key).update(meetup)
+        .then(() => {
+          this.dispatch('loadMeetups')
+        })
+    },
+    createMeetup ({commit, getters}, payload) {
+      const meetup = {
+        title: payload.title,
+        location: payload.location,
+        description: payload.description,
+        date: payload.date.toISOString(),
+        creatorId: getters.user.id
+      }
+      let imageUrl
+      let key
+      // store the meetup on the server, first without the image reference (URL)
+      firebase.database().ref('meetups').push(meetup)
+        .then((data) => {
+          key = data.key
+          // return the key as a promise for the next chained method
+          return key
+        })
+        .then(key => {
+          // with the key from firebase, now upload the file
+          const filename = payload.image.name
+          const ext = filename.slice(filename.lastIndexOf('.'))
+          return firebase.storage().ref('meetups/' + key + ext).put(payload.image)
+        })
+        .then(fileData => {
+          // with the file hopefully uploaded successfully, we now have the file data
+          imageUrl = fileData.metadata.downloadURLs[0]
+          // now we can update the meetup and add the reference to the uploaded file
+          return firebase.database().ref('meetups').child(key).update({imageUrl: imageUrl})
+        })
+        .then(() => {
+          // finally, we can store the new meetup in our local DB
+          commit('createMeetup', {
+            ...meetup,
+            imageUrl: imageUrl,
+            id: key
+          })
         })
         .catch((error) => {
           console.log(error)
         })
     },
-    createMeetup ({commit}, payload) {
-      const meetup = {
-        title: payload.title,
-        location: payload.location,
-        imageUrl: payload.imageUrl,
-        description: payload.description,
-        date: payload.date.toISOString()
-      }
-      // store it on the server
-      firebase.database().ref('meetups').push(meetup)
-        .then((data) => {
-          meetup.id = data.key
-          commit('createMeetup', meetup)
-          this.$router.push('meetups')
-        })
-        .catch((error) => {
+    signUserOut ({commit}) {
+      commit('setLoading', true)
+      commit('clearError')
+      firebase.auth().signOut()
+        .then(() => {
+          // Sign-out successful.
+          commit('setLoading', false)
+          commit('setUser', null)
+        }).catch((error) => {
+          commit('setError', error)
+          commit('setLoading', false)
+          // An error happened.
           console.log(error)
         })
     },
