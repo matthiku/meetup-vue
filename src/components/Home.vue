@@ -1,6 +1,13 @@
 <template>
   <v-container>
 
+    <!-- Alert Panel -->
+    <v-layout row v-if="error">
+      <v-flex sm12 md6 offset-sm2>
+        <app-alert @dismissed="onDismissed" :text="error.message"></app-alert>
+      </v-flex>
+    </v-layout>
+
     <v-layout row wrap mb-3>
 
       <v-flex xs12 sm6 class="text-xs-center text-sm-right">
@@ -54,9 +61,15 @@ export default {
   methods: {
     onLoadMeetup (id) {
       this.$router.push({name: 'meetup', params: {id}})
+    },
+    onDismissed () {
+      this.$store.dispatch('clearError')
     }
   },
   computed: {
+    error () {
+      return this.$store.getters.error
+    },
     meetups () {
       return this.$store.getters.featuredMeetups
     },

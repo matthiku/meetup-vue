@@ -2,6 +2,13 @@
   <v-container fluid>
     <v-layout row wrap>
 
+      <!-- Alert Panel -->
+      <v-layout row v-if="error">
+        <v-flex sm12 md6 offset-sm2>
+          <app-alert @dismissed="onDismissed" :text="error.message"></app-alert>
+        </v-flex>
+      </v-layout>
+
       <v-flex xs12 class="text-xs-center">
         <!-- show loader icon while loading -->
         <v-progress-circular 
@@ -56,7 +63,17 @@
 export default {
   props: ['id'],
 
+  methods: {
+    onDismissed () {
+      this.$store.dispatch('clearError')
+    }
+  },
+
   computed: {
+
+    error () {
+      return this.$store.getters.error
+    },
 
     isLoading () {
       return this.$store.getters.loading

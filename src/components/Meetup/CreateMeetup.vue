@@ -7,6 +7,12 @@
       </v-flex>
     </v-layout>
 
+    <!-- Alert Panel -->
+    <v-layout row v-if="error">
+      <v-flex sm12 md6 offset-sm2>
+        <app-alert @dismissed="onDismissed" :text="error.message"></app-alert>
+      </v-flex>
+    </v-layout>
 
     <v-layout row>
       <v-flex sm12 md10 offset-md1>
@@ -118,6 +124,11 @@ export default {
   },
 
   computed: {
+
+    error () {
+      return this.$store.getters.error
+    },
+
     formIsValid () {
       return this.title !== '' &&
         this.description !== '' &&

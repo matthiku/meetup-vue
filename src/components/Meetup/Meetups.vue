@@ -6,6 +6,14 @@
         <v-card class="info mb-3" v-for="meetup in meetups" :key="meetup.id">
           <v-container fluid>
             <v-layout row>
+
+              <!-- Alert Panel -->
+              <v-layout row v-if="error">
+                <v-flex sm12 md6 offset-sm2>
+                  <app-alert @dismissed="onDismissed" :text="error.message"></app-alert>
+                </v-flex>
+              </v-layout>
+
               
               <v-flex xs5 sm4 md3>
                 <v-card-media
@@ -46,6 +54,9 @@
 <script>
 export default {
   computed: {
+    error () {
+      return this.$store.getters.error
+    },
     meetups () {
       return this.$store.getters.loadedMeetups
     }
@@ -53,6 +64,9 @@ export default {
   methods: {
     showSingleMeetup (id) {
       this.$router.push({name: 'meetup', params: { id: id }})
+    },
+    onDismissed () {
+      this.$store.dispatch('clearError')
     }
   }
 }
