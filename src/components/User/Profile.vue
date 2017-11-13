@@ -26,6 +26,10 @@
             <v-container>
               <v-layout row wrap>
 
+                <v-flex xs12 mb-3 v-if="!registeredMeetups.length">
+                  You currently have no Registrations!<br>
+                  <v-btn :to="{name: 'meetups'}">View Meetups</v-btn>
+                </v-flex>
                 <!-- iterate through each registered meetup -->
                 <v-flex xs12 mb-3 key="meetup.id" v-for="meetup in registeredMeetups">
                   <v-card color="cyan darken-2" class="white--text">
@@ -48,6 +52,7 @@
                           ></v-card-media>
 
                           <v-card-actions>
+                            <v-spacer></v-spacer>
                             <v-btn @click="showSingleMeetup(meetup.id)">
                               <v-icon left>arrow_forward</v-icon>
                               View Meetup

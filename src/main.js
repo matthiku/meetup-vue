@@ -59,7 +59,7 @@ new Vue({
     firebase.auth().onAuthStateChanged(function (user) {
       if (user) {
         store.dispatch('setUser', user)
-        store.dispatch('fetchUserData')
+        // store.dispatch('fetchUserData')
       } else {
         console.log('No user is signed in.')
       }

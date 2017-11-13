@@ -14,7 +14,7 @@
                 </v-flex>
               </v-layout>
 
-              
+              <!-- show image -->
               <v-flex xs5 sm4 md3>
                 <v-card-media
                   height="125px"
@@ -24,20 +24,23 @@
                 ></v-card-media>
               </v-flex>
 
+              <!-- show title, date and location -->
               <v-flex xs7 sm8 md9>
-                <v-card-title primary-title>
+                <v-card-title primary-title class="mb-0 pb-0">
                   <div>                  
                     <h5 class="white--text mb-0">{{ meetup.title }}</h5>
                     <div>{{ meetup.date | date }} in {{ meetup.location }}</div>
+                    <div class="yellow--text" v-if="userIsRegistered(meetup.id)">You are registered!</div>
                   </div>
                 </v-card-title>
 
                 <v-card-actions>
                   <v-btn 
                     @click="showSingleMeetup(meetup.id)"
-                    flat>
-                    <v-icon left>arrow_forward</v-icon>
-                    View Meetup
+                    :flat="!userOwnsMeetup(meetup.creatorId)" 
+                    :class="userOwnsMeetup(meetup.creatorId) ? 'info' : ''">
+                    <v-icon left>{{ userOwnsMeetup(meetup.creatorId) ? 'edit' : 'arrow_forward' }}</v-icon>
+                    {{ userOwnsMeetup(meetup.creatorId) ? 'Edit' : 'View' }} Meetup
                   </v-btn>
                 </v-card-actions>
 
@@ -67,6 +70,12 @@ export default {
     },
     onDismissed () {
       this.$store.dispatch('clearError')
+    },
+    userIsRegistered (meetupId) {
+      return this.$store.getters.user.registeredMeetups.find(id => id === meetupId)
+    },
+    userOwnsMeetup (creatorId) {
+      return this.$store.getters.user.id === creatorId
     }
   }
 }

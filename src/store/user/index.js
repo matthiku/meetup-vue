@@ -64,13 +64,15 @@ export default {
           commit('setLoading', false)
         })
     },
-    setUser ({commit}, payload) {
+    setUser ({commit, dispatch}, payload) {
       const userData = {
         id: payload.uid,
         fbKeys: {},
         registeredMeetups: []
       }
       commit('setUser', userData)
+      dispatch('loadMeetups')
+      dispatch('fetchUserData')
     },
     fetchUserData ({commit, getters}) {
       commit('setLoading', true)
@@ -112,20 +114,14 @@ export default {
           console.log(error)
         })
     },
-    signUserIn ({commit}, payload) {
+    signUserIn ({commit, dispatch}, payload) {
       commit('setLoading', true)
       commit('clearError')
       firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
         .then(
           user => {
             commit('setLoading', false)
-            const newUser = {
-              id: user.uid,
-              fbKeys: {},
-              registeredMeetups: []
-            }
-            commit('setUser', newUser)
-            commit('fetchUserData')
+            dispatch('setUser', user)
           }
         )
         .catch(
@@ -136,20 +132,14 @@ export default {
           }
         )
     },
-    signUserUp ({commit}, payload) {
+    signUserUp ({commit, dispatch}, payload) {
       commit('setLoading', true)
       commit('clearError')
       firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
         .then(
           user => {
             commit('setLoading', false)
-            const newUser = {
-              id: user.uid,
-              fbKeys: {},
-              registeredMeetups: []
-            }
-            commit('setUser', newUser)
-            commit('fetchUserData')
+            dispatch('setUser', user)
           }
         )
         .catch(
